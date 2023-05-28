@@ -10,6 +10,7 @@
 #include "nrf24l01.h"
 #include "disp.h"
 #include "tone.h"
+#include "string.h"     /* memcpy(), strcmp() */
 
 extern uint32_t g_1ms_cnt;
 extern uint8_t  g_5000ms_flag;
@@ -20,8 +21,7 @@ int main( void )
     
     uint8_t nrf_tx_buf[PLOAD_WIDTH_MAX] = {0};
     uint8_t nrf_rx_buf[PLOAD_WIDTH_MAX] = {0};
-    
-    uint16_t batt_local     = 0;    /* 遥控器电池电压，单位：10mV */
+
     uint16_t batt_remote    = 0;    /* 飞控或平衡车电池电压，单位：10mV */
     
     int16_t  accelerator    = 0;    /* 油门 */
@@ -33,10 +33,6 @@ int main( void )
     int16_t  turn           = 0;    /* 转向速度 */ 
     
     key_status_e key_val    = NO_KEY_PRESS;
-    
-    char    str_num[SMG_NUM + 1]    = {0};
-    char    str_volt[10]            = {"L0.00"};
-    uint8_t disp_self               = 0;
     
     systick_init();
 	uart_init();
@@ -54,6 +50,7 @@ int main( void )
     printf("nrf24l01_init %d\r\n", ret);
     nrf24l01_tx_mode();
 
+    play_tone(TONE_BUTTON);
     if (PRODUCT == FLY)
     {
         disp_set_string("FLY");
@@ -73,7 +70,7 @@ int main( void )
         }
         
         adc_calibration();
-
+        
         if (PRODUCT == FLY)
         {
             accelerator = g_adc_val[2] * 900.0 / ((1 << 12) - 1) + 0.5;                 /* 0~900 */
@@ -84,12 +81,13 @@ int main( void )
             pitch       = (pitch > -1 && pitch < 1) ? 0 : pitch;
             roll        = (roll > -1 && roll < 1) ? 0 : roll;
             
-            *(uint16_t *)&nrf_tx_buf[0] = accelerator;
-            *(int16_t *)&nrf_tx_buf[2]  = pitch;
-            *(int16_t *)&nrf_tx_buf[4]  = roll;
-            *(uint8_t *)&nrf_tx_buf[6]  = key_val;
+            memcpy(nrf_tx_buf, (const char *)"FLY", 4);
+            *(uint16_t *)&nrf_tx_buf[4] = accelerator;
+            *(int16_t *)&nrf_tx_buf[6]  = pitch;
+            *(int16_t *)&nrf_tx_buf[8]  = roll;
+            *(uint8_t *)&nrf_tx_buf[10]  = key_val;
             
-            ret = nrf24l01_tx_packet(nrf_tx_buf, 8);
+            ret = nrf24l01_tx_packet(nrf_tx_buf, 12);
         }
         else if (PRODUCT == CAR)
         {
@@ -100,87 +98,44 @@ int main( void )
             speed  = (speed > -10 && speed < 10) ? 0 : speed;
             turn  = (turn > -200 && turn < 200) ? 0 : turn;
             
-            *(int16_t *)&nrf_tx_buf[0]  = speed;
-            *(int16_t *)&nrf_tx_buf[2]  = turn;
+            memcpy(nrf_tx_buf, (const char *)"CAR", 4);
+            *(int16_t *)&nrf_tx_buf[4]  = speed;
+            *(int16_t *)&nrf_tx_buf[6]  = turn;
             
-            ret = nrf24l01_tx_packet(nrf_tx_buf, 4);
+            ret = nrf24l01_tx_packet(nrf_tx_buf, 8);
         }
-
-        printf("TX:%d %d %d %d %x\r\n", *(int16_t *)&nrf_tx_buf[0], *(int16_t *)&nrf_tx_buf[2], *(int16_t *)&nrf_tx_buf[4], *(int16_t *)&nrf_tx_buf[6], ret);
+        
         if (ret == 0)
         {
             led_set(LED_L, TOGGLE);
+            printf("TX:%d %d %d %d %x\r\n", *(int16_t *)&nrf_tx_buf[4], *(int16_t *)&nrf_tx_buf[6], *(int16_t *)&nrf_tx_buf[8], *(int16_t *)&nrf_tx_buf[10], ret);
         }
         
         ret = nrf24l01_rx_packet(nrf_rx_buf);
         if (ret == 0)
         {
             led_set(LED_R, TOGGLE);
-            if (PRODUCT == FLY)
+                    
+            if (PRODUCT == FLY && strcmp((const char *)nrf_rx_buf, "FLY") == 0)
             {
-                batt_remote = *(uint16_t *)&nrf_rx_buf[0];
-                pitch       = *(int16_t *)&nrf_rx_buf[2];
-                roll        = *(int16_t *)&nrf_rx_buf[4];
-                yaw         = *(int16_t *)&nrf_rx_buf[6];
-//                printf("RX:%d %d %d %d\r\n", batt_remote, pitch, roll, yaw);
+                batt_remote = *(uint16_t *)&nrf_rx_buf[4];
+                pitch       = *(int16_t *)&nrf_rx_buf[6];
+                roll        = *(int16_t *)&nrf_rx_buf[8];
+                yaw         = *(int16_t *)&nrf_rx_buf[10];
+                display_batt(batt_remote);
+                printf("RX:%d %d %d %d\r\n", batt_remote, pitch, roll, yaw);
             }
-            else if (PRODUCT == CAR)
+            else if (PRODUCT == CAR && strcmp((const char *)nrf_rx_buf, "CAR") == 0)
             {
-                batt_remote = *(uint16_t *)&nrf_rx_buf[0];
-                speed = *(int16_t *)&nrf_rx_buf[2];
-                turn = *(int16_t *)&nrf_rx_buf[4];
-//                printf("RX:%d %d %d\r\n", batt_remote, speed, turn);
-            }
-
-            batt_local = batt_aver_filter((float)g_adc_val[4] / 4095 * 3.3 * 1.36 * 100 + 0.5);
-            
-            if (PRODUCT == FLY)
-            {
-                BATT_VOLT_REMOTE_LIMIT = BATT_VOLT_FLY_LIMIT;
-            }
-            else if (PRODUCT == CAR)
-            {
-                BATT_VOLT_REMOTE_LIMIT = BATT_VOLT_CAR_LIMIT;
-            }
-            
-            if (g_5000ms_flag == 1)
-            {
-                g_5000ms_flag = 0;
-                disp_self = !disp_self;
-                if ((disp_self && batt_local < BATT_VOLT_LOCAL_LIMIT) ||
-                    (!disp_self && batt_remote < BATT_VOLT_REMOTE_LIMIT))
-                {
-                    disp_set_all_flick_cycle(200);
-                }
-                else
-                {
-                    disp_set_all_flick_cycle(0);
-                }
-            }
-            if (disp_self)
-            {
-                int2str(batt_local, str_num);
-                str_volt[0] = 'L';
-                
+                batt_remote = *(uint16_t *)&nrf_rx_buf[4];
+                speed = *(int16_t *)&nrf_rx_buf[6];
+                turn = *(int16_t *)&nrf_rx_buf[8];
+                display_batt(batt_remote);
+                printf("RX:%d %d %d\r\n", batt_remote, speed, turn);
             }
             else
             {
-                int2str(batt_remote, str_num);
-                str_volt[0] = 'r';
-            }
-            str_volt[1] = str_num[0];
-            str_volt[3] = str_num[1];
-            str_volt[4] = str_num[2];
-            disp_set_string(str_volt);
-            
-            if (batt_local < BATT_VOLT_LOCAL_LIMIT ||
-                batt_remote < BATT_VOLT_REMOTE_LIMIT)
-            {
-                play_tone(TONE_EMG);
-            }
-            else
-            {
-                play_tone(TONE_STOP);
+                disp_set_string("LOCK");
             }
         }
     }

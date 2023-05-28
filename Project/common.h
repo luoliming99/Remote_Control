@@ -22,9 +22,10 @@ typedef enum
     TOGGLE
 } sw_status_e;
 
-#define BATT_FILTER_NUM                 10
+#define BATT_FILTER_NUM         10
 
 float batt_aver_filter(float data_in);
 void int2str(int num, char *str);   /* 10½øÖÆ */
+void display_batt(uint16_t batt_remote);
     
 #endif
