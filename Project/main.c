@@ -116,7 +116,7 @@ int main( void )
         {
             led_set(LED_R, TOGGLE);
                     
-            if (PRODUCT == FLY && strcmp((const char *)nrf_rx_buf, "FLY") == 0)
+            if (PRODUCT == FLY && strcmp((const char *)nrf_rx_buf, "FLZ") == 0)
             {
                 batt_remote = *(uint16_t *)&nrf_rx_buf[4];
                 pitch       = *(int16_t *)&nrf_rx_buf[6];
@@ -125,7 +125,7 @@ int main( void )
                 display_batt(batt_remote);
                 printf("RX:%d %d %d %d\r\n", batt_remote, pitch, roll, yaw);
             }
-            else if (PRODUCT == CAR && strcmp((const char *)nrf_rx_buf, "CAR") == 0)
+            else if (PRODUCT == CAR && strcmp((const char *)nrf_rx_buf, "CAS") == 0)
             {
                 batt_remote = *(uint16_t *)&nrf_rx_buf[4];
                 speed = *(int16_t *)&nrf_rx_buf[6];
