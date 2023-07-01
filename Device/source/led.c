@@ -25,18 +25,18 @@ void led_set(which_led_e led, sw_status_e status)
     {
         case LED_L:
             if (status == ON)
-                GPIO_SetBits(LED_PORT, LED_L_PIN);
-            else if (status == OFF)
                 GPIO_ResetBits(LED_PORT, LED_L_PIN);
+            else if (status == OFF)
+                GPIO_SetBits(LED_PORT, LED_L_PIN);
             else if (status == TOGGLE)
                 GPIO_WriteBit(LED_PORT, LED_L_PIN, (BitAction)(1 - GPIO_ReadOutputDataBit(LED_PORT, LED_L_PIN)));
         break;
             
         case LED_R:
             if (status == ON)
-                GPIO_SetBits(LED_PORT, LED_R_PIN);
-            else if (status == OFF)
                 GPIO_ResetBits(LED_PORT, LED_R_PIN);
+            else if (status == OFF)
+                GPIO_SetBits(LED_PORT, LED_R_PIN);
             else if (status == TOGGLE)
                 GPIO_WriteBit(LED_PORT, LED_R_PIN, (BitAction)(1 - GPIO_ReadOutputDataBit(LED_PORT, LED_R_PIN)));
         break;
