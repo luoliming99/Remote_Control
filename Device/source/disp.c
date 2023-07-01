@@ -11,12 +11,12 @@ void disp_init(void)
 {
     GPIO_InitTypeDef  GPIO_InitStructure; 
 
-	/* 使能相关时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
+    /* 使能相关时钟 */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
     
     /* 禁用JTAG，启用SWJ。(PB3/PB4/PA15 可重映射为其他功能) */
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
-	
+    
     /* GPIO配置 */
     GPIO_InitStructure.GPIO_Pin = SMG_A | SMG_B | SMG_C | SMG_D | SMG_E | SMG_F | SMG_G;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;

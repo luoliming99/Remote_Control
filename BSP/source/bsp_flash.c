@@ -14,7 +14,7 @@ int flash_write_data(uint16_t halfWordBuf[], uint32_t numOfHalfWord)
     
     RCC->CFGR0 |= (uint32_t)RCC_HPRE_DIV2;
     __disable_irq(); 
-	
+
     FLASH_Unlock();
 
     NbrOfPage = (PAGE_WRITE_END_ADDR - PAGE_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
@@ -59,7 +59,7 @@ int flash_write_data(uint16_t halfWordBuf[], uint32_t numOfHalfWord)
     } while (0);
 
     FLASH_Lock();
-		
+
     RCC->CFGR0 &= ~(uint32_t)RCC_HPRE_DIV2;
     __enable_irq();
     

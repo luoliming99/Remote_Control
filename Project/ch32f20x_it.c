@@ -26,7 +26,7 @@ void NMI_Handler(void)
 {
   while (1)
   {
-  }	
+  }
 }
 
 /*********************************************************************
@@ -141,11 +141,11 @@ void DEBUG_USART_IRQHandler(void)
 {
     uint8_t ch;
     
-	if (USART_GetITStatus(DEBUG_USART, USART_IT_RXNE) != RESET)
-	{		
-		ch = USART_ReceiveData(DEBUG_USART);
+    if (USART_GetITStatus(DEBUG_USART, USART_IT_RXNE) != RESET)
+    {        
+        ch = USART_ReceiveData(DEBUG_USART);
         USART_SendData(DEBUG_USART, ch);    
-	}	 
+    }
 }
 
 uint32_t g_1ms_cnt      = 0;
@@ -155,8 +155,8 @@ void  TIM_IRQHandler(void)
 {
     uint8_t i = 0;
     
-	if (TIM_GetITStatus(TIM_x, TIM_IT_Update) != RESET) 
-	{	
+    if (TIM_GetITStatus(TIM_x, TIM_IT_Update) != RESET) 
+    {
         if ((g_1ms_cnt % 5) == 0)
         {
             disp_code();
@@ -205,8 +205,8 @@ void  TIM_IRQHandler(void)
             g_1ms_cnt = 0;
         }
 
-		TIM_ClearITPendingBit(TIM_x , TIM_FLAG_Update);  		 
-	}		 	
+        TIM_ClearITPendingBit(TIM_x , TIM_FLAG_Update);
+    }
 }
 
 

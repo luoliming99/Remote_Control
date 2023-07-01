@@ -8,9 +8,9 @@ void key_init(void)
 {
     GPIO_InitTypeDef  GPIO_InitStructure; 
 
-	/* 使能相关时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	
+    /* 使能相关时钟 */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    
     /* GPIO配置 */
     GPIO_InitStructure.GPIO_Pin = KEY_L | KEY_R;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -46,11 +46,11 @@ key_status_e key_scan(key_mode_e mode, uint32_t tick_ms)
     static uint8_t status = 0;
     static uint8_t tick0  = 0;
     
-	if (status == 0 && (KEY_L_VAL == 0 || KEY_R_VAL == 0))  /* 有按键按下 */
-	{
-		tick0 = tick_ms;
+    if (status == 0 && (KEY_L_VAL == 0 || KEY_R_VAL == 0))  /* 有按键按下 */
+    {
+        tick0 = tick_ms;
         status = 1;
-	}
+    }
     if (status == 1 && KEY_L_VAL == 1 && KEY_R_VAL == 1)    /* 按键都松开了 */
     {
         status = 0;

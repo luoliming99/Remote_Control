@@ -9,9 +9,9 @@ void tone_init(void)
 {
     GPIO_InitTypeDef  GPIO_InitStructure; 
 
-	/* 使能相关时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-	
+    /* 使能相关时钟 */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+    
     /* GPIO配置 */
     GPIO_InitStructure.GPIO_Pin = TONE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;

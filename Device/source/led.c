@@ -5,9 +5,9 @@ void led_init(void)
 {
     GPIO_InitTypeDef  GPIO_InitStructure; 
 
-	/* 使能相关时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-	
+    /* 使能相关时钟 */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    
     /* GPIO配置 */
     GPIO_InitStructure.GPIO_Pin = LED_L_PIN | LED_R_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;

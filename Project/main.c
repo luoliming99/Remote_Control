@@ -35,7 +35,7 @@ int main( void )
     key_status_e key_val    = NO_KEY_PRESS;
     
     systick_init();
-	uart_init();
+    uart_init();
     adc_init();
     disp_init();
     tim_init();
