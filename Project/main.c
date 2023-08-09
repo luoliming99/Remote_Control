@@ -10,6 +10,7 @@
 #include "nrf24l01.h"
 #include "disp.h"
 #include "tone.h"
+#include "niming.h"
 #include "string.h"     /* memcpy(), strcmp() */
 
 extern uint32_t g_1ms_cnt;
@@ -108,30 +109,27 @@ int main( void )
         if (ret == 0)
         {
             led_set(LED_L, TOGGLE);
-            printf("TX:%d %d %d %d %x\r\n", *(int16_t *)&nrf_tx_buf[4], *(int16_t *)&nrf_tx_buf[6], *(int16_t *)&nrf_tx_buf[8], *(int16_t *)&nrf_tx_buf[10], ret);
+//            printf("TX:%d %d %d %d %x\r\n", *(int16_t *)&nrf_tx_buf[4], *(int16_t *)&nrf_tx_buf[6], *(int16_t *)&nrf_tx_buf[8], *(int16_t *)&nrf_tx_buf[10], ret);
         }
         
         ret = nrf24l01_rx_packet(nrf_rx_buf);
         if (ret == 0)
         {
             led_set(LED_R, TOGGLE);
-                    
+            
+            /* 发送姿态数据到匿名上位机 */
+            niming_report_imu(nrf_rx_buf);
+            niming_report_data(nrf_rx_buf);
+            
             if (PRODUCT == FLY && strcmp((const char *)nrf_rx_buf, "FLZ") == 0)
             {
-                batt_remote = *(uint16_t *)&nrf_rx_buf[4];
-                pitch       = *(int16_t *)&nrf_rx_buf[6];
-                roll        = *(int16_t *)&nrf_rx_buf[8];
-                yaw         = *(int16_t *)&nrf_rx_buf[10];
+                batt_remote = *(uint16_t *)&nrf_rx_buf[28];
                 display_batt(batt_remote);
-                printf("RX:%d %d %d %d\r\n", batt_remote, pitch, roll, yaw);
             }
             else if (PRODUCT == CAR && strcmp((const char *)nrf_rx_buf, "CAS") == 0)
             {
-                batt_remote = *(uint16_t *)&nrf_rx_buf[4];
-                speed = *(int16_t *)&nrf_rx_buf[6];
-                turn = *(int16_t *)&nrf_rx_buf[8];
+                batt_remote = *(uint16_t *)&nrf_rx_buf[28];
                 display_batt(batt_remote);
-                printf("RX:%d %d %d\r\n", batt_remote, speed, turn);
             }
             else
             {

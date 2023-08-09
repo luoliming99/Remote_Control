@@ -434,6 +434,11 @@
               <FileType>1</FileType>
               <FilePath>..\Device\source\tone.c</FilePath>
             </File>
+            <File>
+              <FileName>niming.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Device\source\niming.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
