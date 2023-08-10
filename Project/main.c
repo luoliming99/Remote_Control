@@ -28,7 +28,6 @@ int main( void )
     int16_t  accelerator    = 0;    /* 油门 */
     int16_t  pitch          = 0;    /* 俯仰角 */
     int16_t  roll           = 0;    /* 横滚角 */
-    int16_t  yaw            = 0;    /* 偏航角 */
 
     int16_t  speed          = 0;    /* 行走速度，单位：r/min */
     int16_t  turn           = 0;    /* 转向速度 */ 
